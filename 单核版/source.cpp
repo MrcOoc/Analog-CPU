@@ -1,5 +1,5 @@
-/*·ëÅµÒÀÂüÊ½CPUÄ£ÄâÆ÷
-@author: Tian Zhenyu
+/*å†¯è¯ºä¾æ›¼å¼CPUæ¨¡æ‹Ÿå™¨
+@author: Tian ZY
 @date:2021.5.21
 */
 
@@ -8,25 +8,25 @@
 #include<math.h>
 #include<string.h>
 
-void getOrder(char* code, FILE** fsPtr);//¶ÁÈ¡´æ´¢Ö¸Áî
-void judgeOrder(char* code, int* data, int* ax, int* ip, int* ir, int* flag);//·ÖÎöÖ¸Áî
-int binaryNum(char code[], int start, int num);//°Ñ×Ö·û´®×ª»»³ÉÊ®½øÖÆÊı
-void transOrder(int objfront, int objback, int lmmediate, int data[], int ax[]);//´«Êä
+void getOrder(char* code, FILE** fsPtr);//è¯»å–å­˜å‚¨æŒ‡ä»¤
+void judgeOrder(char* code, int* data, int* ax, int* ip, int* ir, int* flag);//åˆ†ææŒ‡ä»¤
+int binaryNum(char code[], int start, int num);//æŠŠå­—ç¬¦ä¸²è½¬æ¢æˆåè¿›åˆ¶æ•°
+void transOrder(int objfront, int objback, int lmmediate, int data[], int ax[]);//ä¼ è¾“
 void arithmeticOperation(int opcode, int frontReg, int backReg,
-                         int lmmediate, int data[], int ax[]);//ËãÊõÔËËã
+                         int lmmediate, int data[], int ax[]);//ç®—æœ¯è¿ç®—
 void logicalOperation(int opcode, int frontReg, int backReg, int lmmediate,
-                      int data[], int ax[]);//Âß¼­ÔËËã
+                      int data[], int ax[]);//é€»è¾‘è¿ç®—
 void compareOrder(int opcode, int frontReg, int backReg, int lmmediate, int data[],
-                  int ax[], int* flag);//±È½Ï
-void skipOrder(int backReg, int lmmediate, int* ip, int* flag);//Ìø×ª
-void inOutPut(int opcode, int frontReg, int ax[]);//ÊäÈëÊä³ö
-void outPut(char code[], int data[], int* ip);//Êä³ö
+                  int ax[], int* flag);//æ¯”è¾ƒ
+void skipOrder(int backReg, int lmmediate, int* ip, int* flag);//è·³è½¬
+void inOutPut(int opcode, int frontReg, int ax[]);//è¾“å…¥è¾“å‡º
+void outPut(char code[], int data[], int* ip);//è¾“å‡º
 
 int main(int argc, char* argv[]) {
     FILE* fPtr;
     if ((fPtr = fopen("dict.dic", "r")) == NULL) {
         printf("open filed");
-        return -1;// add1 ´ò¿ªÎÄ¼şÊ§°Üºó½áÊø 
+        return -1;// add1 æ‰“å¼€æ–‡ä»¶å¤±è´¥åç»“æŸ 
     }
     char code[16385 + 10];
     int ip, ir, flag;
@@ -35,43 +35,43 @@ int main(int argc, char* argv[]) {
     fclose(fPtr);
     judgeOrder(code, data, ax, &ip, &ir, &flag);
     outPut(code, data, &ip);
-    return 0;//add2 ³ÌĞò½áÊøĞèÒª·µ»Ø 
+    return 0;//add2 ç¨‹åºç»“æŸéœ€è¦è¿”å› 
 }
 
-//¶ÁÈ¡´æ´¢È«²¿Ö¸Áîaaa
+//è¯»å–å­˜å‚¨å…¨éƒ¨æŒ‡ä»¤aaa
 void getOrder(char* code, FILE** fsPtr) {
     FILE* fp = *fsPtr;
     int i = 0;
     char c;
     while (!feof(fp)) {
         c = fgetc(fp);
-        if (c == '0' || c == '1') {//¹ıÂË²»Õı³£µÄÊı¾İ 
+        if (c == '0' || c == '1') {//è¿‡æ»¤ä¸æ­£å¸¸çš„æ•°æ® 
             code[i] = c;
             i++;
         }
     }
-    code[i] = '\0';//m3 ÓÃ½áÊø·û´úÌæNULL 
+    code[i] = '\0';//m3 ç”¨ç»“æŸç¬¦ä»£æ›¿NULL 
 }
 
-//·ÖÎöÖ¸Áî£¬ÅĞ¶ÏÖ¸ÁîÀàĞÍ
+//åˆ†ææŒ‡ä»¤ï¼Œåˆ¤æ–­æŒ‡ä»¤ç±»å‹
 void judgeOrder(char* code, int* data, int* ax, int* ip, int* ir, int* flag) {
-    int opcode = 0, frontReg = 0, backReg = 0, lmmediate = 0;   //²Ù×÷Âë£¬Ç°¼Ä´æÆ÷£¬ºó¼Ä´æÆ÷£¬Á¢¼´Êı
-    *ip = 0;//add 4 ¶Ôip½øĞĞ³õÊ¼»¯ 
+    int opcode = 0, frontReg = 0, backReg = 0, lmmediate = 0;   //æ“ä½œç ï¼Œå‰å¯„å­˜å™¨ï¼Œåå¯„å­˜å™¨ï¼Œç«‹å³æ•°
+    *ip = 0;//add 4 å¯¹ipè¿›è¡Œåˆå§‹åŒ– 
     *flag = 0;
     *ir = 0;
     int len = strlen(code);
     int start = 0;
     do {
-        start = (*ip) / 4 * 32; //ËùĞèÖ¸Áî¿ªÊ¼Î»ÖÃ
-        opcode = binaryNum(code, start, 8); //²Ù×÷Âë
+        start = (*ip) / 4 * 32; //æ‰€éœ€æŒ‡ä»¤å¼€å§‹ä½ç½®
+        opcode = binaryNum(code, start, 8); //æ“ä½œç 
         start += 8;
-        frontReg = binaryNum(code, start, 4);   //Ç°¼Ä´æÆ÷
+        frontReg = binaryNum(code, start, 4);   //å‰å¯„å­˜å™¨
         start += 4;
-        backReg = binaryNum(code, start, 4);    //ºó¼Ä´æÆ÷
+        backReg = binaryNum(code, start, 4);    //åå¯„å­˜å™¨
         start += 4;
-        lmmediate = binaryNum(code, start, 16); //Á¢¼´Êı
+        lmmediate = binaryNum(code, start, 16); //ç«‹å³æ•°
 
-        *ip += 4;   //±êÖ¾¼Ä´æÆ÷¸üĞÂ
+        *ip += 4;   //æ ‡å¿—å¯„å­˜å™¨æ›´æ–°
         *ir = opcode * 256 + frontReg * 16 + backReg;
 
         if (opcode == 0) {
@@ -119,7 +119,7 @@ void judgeOrder(char* code, int* data, int* ax, int* ip, int* ir, int* flag) {
     } while (start < len);
 }
 
-//½«×Ö·û´®×ªÎª¶ş½øÖÆÊı£¬ÔÙµ÷ÓÃsystemShift·µ»ØÊ®½øÖÆÊı
+//å°†å­—ç¬¦ä¸²è½¬ä¸ºäºŒè¿›åˆ¶æ•°ï¼Œå†è°ƒç”¨systemShiftè¿”å›åè¿›åˆ¶æ•°
 int binaryNum(char code[], int start, int num) {
     int decimalNum = 0, i = 0;
     for (i = 0; i < num; i++) {
@@ -128,14 +128,14 @@ int binaryNum(char code[], int start, int num) {
     return decimalNum;
 }
 
-//Êı¾İ´«ËÍÖ¸Áî
+//æ•°æ®ä¼ é€æŒ‡ä»¤
 void transOrder(int objfront, int objback, int lmmediate,
                 int data[], int ax[]) {
-    //Á¢¼´ÊıµÄ´«µİ 
+    //ç«‹å³æ•°çš„ä¼ é€’ 
     if (objback == 0) {
         ax[objfront] = lmmediate;
     }
-    //¼Ä´æÆ÷Ö®¼äµÄ´«µİ
+    //å¯„å­˜å™¨ä¹‹é—´çš„ä¼ é€’
     else {
         if (objfront <= 4) {
             ax[objfront] = data[(ax[objback] - 16384) / 2];
@@ -146,7 +146,7 @@ void transOrder(int objfront, int objback, int lmmediate,
     }
 }
 
-//ËãÊıÔËËãÖ¸Áî
+//ç®—æ•°è¿ç®—æŒ‡ä»¤
 void arithmeticOperation(int opcode, int frontReg, int backReg, int lmmediate,
                          int data[], int ax[]) {
     if (backReg == 0) {
@@ -179,7 +179,7 @@ void arithmeticOperation(int opcode, int frontReg, int backReg, int lmmediate,
     }
 }
 
-//Âß¼­ÔËËãÖ¸Áî
+//é€»è¾‘è¿ç®—æŒ‡ä»¤
 void logicalOperation(int opcode, int frontReg, int backReg, int lmmediate,
                       int data[], int ax[]) {
     if (backReg == 0) {
@@ -236,7 +236,7 @@ void logicalOperation(int opcode, int frontReg, int backReg, int lmmediate,
     }
 }
 
-//±È½ÏÖ¸Áî
+//æ¯”è¾ƒæŒ‡ä»¤
 void compareOrder(int opcode, int frontReg, int backReg, int lmmediate, int data[],
                   int ax[], int* flag) {
     if (backReg == 0) {
@@ -247,7 +247,7 @@ void compareOrder(int opcode, int frontReg, int backReg, int lmmediate, int data
         if (ax[frontReg] < lmmediate)
             *flag = -1;
     }
-    //¼Ä´æÆ÷ Ö®¼äµÄ´«µİ
+    //å¯„å­˜å™¨ ä¹‹é—´çš„ä¼ é€’
     else {
         if (ax[frontReg] > data[(ax[backReg] - 16384) / 2])
             *flag = 1;
@@ -258,7 +258,7 @@ void compareOrder(int opcode, int frontReg, int backReg, int lmmediate, int data
     }
 }
 
-//Ìø×ªÖ¸Áî
+//è·³è½¬æŒ‡ä»¤
 void skipOrder(int backReg, int lmmediate, int* ip, int* flag) {
     if (backReg == 0) {
         *ip += lmmediate - 4;
@@ -281,7 +281,7 @@ void skipOrder(int backReg, int lmmediate, int* ip, int* flag) {
     }
 }
 
-//ÊäÈëÊä³öÖ¸Áî
+//è¾“å…¥è¾“å‡ºæŒ‡ä»¤
 void inOutPut(int opcode, int frontReg, int ax[]) {
     if (opcode == 11) {
         printf("in:\n");
@@ -298,7 +298,7 @@ void outPut(char code[], int data[], int* ip) {
     task = 1;
     cnt = 0;
     *ip = 0;
-    //´úÂë¶Î  
+    //ä»£ç æ®µ  
     printf("\ncodeSegment :\n");
     while (task != 0) {
         start = (*ip) / 4 * 32;
@@ -315,7 +315,7 @@ void outPut(char code[], int data[], int* ip) {
         if (cnt % 8 == 0)
             printf("\n");
     }
-    //Êı¾İ¶Î 
+    //æ•°æ®æ®µ 
     printf("\ndataSegment :\n");
     cnt = 0;
     for (i = 0; i <= 16 * 16 - 1; i++) {
